@@ -1,0 +1,44 @@
+<html>
+    <title>Test WKWebview interaction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        .content_area {
+            width: 100%;
+            height: 500px;
+            background-color: #C0C0C0;
+        }
+    </style>
+    <script>
+        function getDataFromNative() {
+            
+        }
+    
+        function callMethod() {
+            passDataToNative('CheckInNative','sayHello', {'message':'你好么'})
+        }
+    
+        function passDataToNative(handlerInterface, handlerMethod, parameters) {
+            //handlerInterface由iOS addScriptMessageHandler与andorid addJavascriptInterface 代码注入而来。
+            var dic = {
+                'nameOfMessageHandler': handlerInterface,
+                'nativeMethod': handlerMethod,
+                'parameters': parameters
+            };
+            if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)){
+                if (window.webkit.messageHandlers[handlerInterface]) {
+                    window.webkit.messageHandlers[handlerInterface].postMessage(dic);
+                }
+            }else{
+                //安卓传输不了js json对象，只能传输string
+                if (window[handlerInterface]) {
+                    window[handlerInterface][handlerMethod](JSON.stringify(dic));
+                }
+            }
+        }
+    </script>
+    <body>
+        <button onclick="callMethod()">get data from native</button>
+        <div class="content_area"></div>
+    </body>
+</html>
